@@ -1,0 +1,6 @@
+import React from 'react'
+// ... other imports ...
+
+export const Checkbox = ({ /* props */ }) => {
+  // ... component logic ...
+}

@@ -1,0 +1,6 @@
+
+.DS_Store
+/app/.next
+/app/node_modules
+app/yarn.lock
+.env
