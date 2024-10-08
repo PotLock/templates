@@ -10,10 +10,33 @@ import { ThemeProvider } from "@/components/theme-provider"
 
 export const metadata: Metadata = {
   title: {
-    default: siteConfig.name,
-    template: `%s - ${siteConfig.name}`,
+    default: siteConfig.metadata.title,
+    template: `%s | ${siteConfig.metadata.title}`,
   },
-  description: siteConfig.description,
+  description: siteConfig.metadata.description,
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://templates.potlock.org',
+    siteName: siteConfig.metadata.title,
+    title: siteConfig.metadata.title,
+    description: siteConfig.metadata.description,
+    images: [
+      {
+        url: siteConfig.metadata.image,
+        width: 1200,
+        height: 630,
+        alt: siteConfig.metadata.title,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: siteConfig.metadata.title,
+    description: siteConfig.metadata.description,
+    images: [siteConfig.metadata.image],
+    creator: '@potlock_',
+  },
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "white" },
     { media: "(prefers-color-scheme: dark)", color: "black" },

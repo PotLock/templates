@@ -22,6 +22,11 @@ export const siteConfig = {
       href: "https://potlock.org/bounties",
     },
   ],
+  metadata: {
+    title: "Potlock Templates",
+    description: "A directory of boilerplate templates to deploy pieces of the Potlock funding of stack",
+    image: "/PotlockTemplates.png",
+  },
   links: {
     twitter: "https://twitter.com/potlock_",
     github: "https://github.com/potlock/templates",
