@@ -2,10 +2,15 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, Search } from "lucide-react"
+import { ArrowRight, Search, ChevronDown, X, Check } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { X } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/dropdown-menu"
 
 import { siteConfig } from "@/config/site"
 import { buttonVariants } from "@/components/ui/button"
@@ -27,6 +32,7 @@ const featuredTemplates = [
     image: "/openfundingstack.png",
     frameworks: ["Next.js", "Tailwind CSS", "React"],
     contracts: ["Donate"],
+    createdAt: "2024-02-14",
     blockchain: ["NEAR"],
   },
   {
@@ -36,6 +42,7 @@ const featuredTemplates = [
     image: "/openfundingstack.png",
     contracts: ["Lists"],
     frameworks: ["Next.js", "Tailwind CSS", "Shadcn/UI"],
+    createdAt: "2024-03-14",
     blockchain: ["NEAR"],
   },
   {
@@ -45,6 +52,7 @@ const featuredTemplates = [
     image: "/openfundingstack.png",
     frameworks: ["Next.js", "Tailwind CSS", "Shadcn/UI"],
     contracts: ["Donate"],
+    createdAt: "2024-05-14",
     blockchain: ["NEAR"],
   },
   {
@@ -54,6 +62,7 @@ const featuredTemplates = [
     image: "/openfundingstack.png",
     frameworks: ["Next.js", "BOS"],
     contracts: ["Pot", "Lists"],
+    createdAt: "2024-05-14",
     blockchain: ["NEAR"],
   }
 ]
@@ -63,6 +72,7 @@ export default function IndexPage() {
   const [selectedFrameworks, setSelectedFrameworks] = useState<string[]>([])
   const [selectedBlockchains, setSelectedBlockchains] = useState<string[]>([])
   const [selectedContracts, setSelectedContracts] = useState<string[]>([])
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest")
 
   const allFrameworks = Array.from(new Set(featuredTemplates.flatMap(t => t.frameworks)))
   const allBlockchains = Array.from(new Set(featuredTemplates.flatMap(t => t.blockchain)))
@@ -91,6 +101,12 @@ export default function IndexPage() {
     setSelectedContracts([])
   }
 
+  const sortedTemplates = [...filteredTemplates].sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime()
+    const dateB = new Date(b.createdAt).getTime()
+    return sortOrder === "newest" ? dateB - dateA : dateA - dateB
+  })
+
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-1">
@@ -117,6 +133,21 @@ export default function IndexPage() {
                   className="pl-10 pr-4 py-2 w-full rounded-full border-gray-300 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 />
               </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center">
+                    Sort by <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => setSortOrder("newest")}>
+                    Newest First {sortOrder === "newest" && <Check className="ml-2 h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortOrder("oldest")}>
+                    Oldest First {sortOrder === "oldest" && <Check className="ml-2 h-4 w-4" />}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button
                 variant="outline"
                 size="sm"
@@ -130,13 +161,12 @@ export default function IndexPage() {
           </div>
           <div className="flex gap-8">
             <div className="w-1/4">
-
               <Accordion type="multiple" className="w-full">
                 <AccordionItem value="frameworks">
                   <AccordionTrigger>Frameworks</AccordionTrigger>
                   <AccordionContent>
                     {allFrameworks.map((framework) => (
-                      <div key={framework} className="flex items-center space-x-2">
+                      <div key={framework} className="flex items-center space-x-2 mb-2">
                         <Checkbox
                           id={`framework-${framework.replace(/\s+/g, '-').toLowerCase()}`}
                           checked={selectedFrameworks.includes(framework)}
@@ -148,10 +178,11 @@ export default function IndexPage() {
                             )
                           }}
                           disabled={!availableFrameworks.includes(framework)}
+                          className="h-5 w-5"
                         />
                         <label
                           htmlFor={`framework-${framework.replace(/\s+/g, '-').toLowerCase()}`}
-                          className={`text-sm font-medium leading-none ${!availableFrameworks.includes(framework) ? 'text-gray-400' : ''}`}
+                          className={`text-sm font-medium leading-none ${!availableFrameworks.includes(framework) ? 'text-gray-400' : 'hover:text-blue-600 cursor-pointer'}`}
                         >
                           {framework}
                         </label>
@@ -163,7 +194,7 @@ export default function IndexPage() {
                   <AccordionTrigger>Blockchains</AccordionTrigger>
                   <AccordionContent>
                     {allBlockchains.map((blockchain) => (
-                      <div key={blockchain} className="flex items-center space-x-2">
+                      <div key={blockchain} className="flex items-center space-x-2 mb-2">
                         <Checkbox
                           id={`blockchain-${blockchain.replace(/\s+/g, '-').toLowerCase()}`}
                           checked={selectedBlockchains.includes(blockchain)}
@@ -175,10 +206,11 @@ export default function IndexPage() {
                             )
                           }}
                           disabled={!availableBlockchains.includes(blockchain)}
+                          className="h-5 w-5"
                         />
                         <label
                           htmlFor={`blockchain-${blockchain.replace(/\s+/g, '-').toLowerCase()}`}
-                          className={`text-sm font-medium leading-none ${!availableBlockchains.includes(blockchain) ? 'text-gray-400' : ''}`}
+                          className={`text-sm font-medium leading-none ${!availableBlockchains.includes(blockchain) ? 'text-gray-400' : 'hover:text-purple-600 cursor-pointer'}`}
                         >
                           {blockchain}
                         </label>
@@ -190,7 +222,7 @@ export default function IndexPage() {
                   <AccordionTrigger>Contracts</AccordionTrigger>
                   <AccordionContent>
                     {allContracts.map((contract) => (
-                      <div key={contract} className="flex items-center space-x-2">
+                      <div key={contract} className="flex items-center space-x-2 mb-2">
                         <Checkbox
                           id={`contract-${contract.replace(/\s+/g, '-').toLowerCase()}`}
                           checked={selectedContracts.includes(contract)}
@@ -202,10 +234,11 @@ export default function IndexPage() {
                             )
                           }}
                           disabled={!availableContracts.includes(contract)}
+                          className="h-5 w-5"
                         />
                         <label
                           htmlFor={`contract-${contract.replace(/\s+/g, '-').toLowerCase()}`}
-                          className={`text-sm font-medium leading-none ${!availableContracts.includes(contract) ? 'text-gray-400' : ''}`}
+                          className={`text-sm font-medium leading-none ${!availableContracts.includes(contract) ? 'text-gray-400' : 'hover:text-green-600 cursor-pointer'}`}
                         >
                           {contract}
                         </label>
@@ -215,24 +248,53 @@ export default function IndexPage() {
                 </AccordionItem>
               </Accordion>
             </div>
-            <div className="w-3/4 grid justify-center gap-4 sm:grid-cols-2 md:grid-cols-3">
-              {filteredTemplates.map((template) => (
-                <div key={template.id} className="border rounded-lg overflow-hidden">
+            <div className="w-3/4 grid justify-center gap-6 sm:grid-cols-2 md:grid-cols-3">
+              {sortedTemplates.map((template) => (
+                <div key={template.id} className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
                   <div className="p-4">
                     <Image
                       src={template.image}
                       alt={template.title}
                       width={600}
                       height={400}
-                      className="object-cover w-full h-48"
+                      className="object-cover w-full h-48 rounded"
                     />
                   </div>
                   <div className="p-4">
-                    <h3 className="text-lg font-semibold">{template.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-2">{template.description}</p>
+                    <h3 className="text-lg font-semibold mb-2">{template.title}</h3>
+                    <p className="text-sm text-muted-foreground mb-4">{template.description}</p>
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap gap-2">
+                        {template.frameworks.map((framework) => (
+                          <span key={framework} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
+                            {framework}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {template.contracts.map((contract) => (
+                          <span key={contract} className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
+                            {contract}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {template.blockchain.map((chain) => (
+                          <span key={chain} className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded">
+                            {chain}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                   <div className="p-4 border-t">
-                    <Link href={`/templates/${template.id}`} className={buttonVariants({ variant: "outline" })}>
+                    <Link 
+                      href={`/templates/${template.id}`} 
+                      className={buttonVariants({ 
+                        variant: "outline",
+                        className: "w-full justify-center hover:bg-blue-50 hover:text-blue-600 transition-colors duration-300"
+                      })}
+                    >
                       View Template <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </div>
@@ -240,7 +302,7 @@ export default function IndexPage() {
               ))}
             </div>
           </div>
-          {filteredTemplates.length === 0 && (
+          {sortedTemplates.length === 0 && (
             <div className="col-span-full text-center py-8">
               <p className="text-lg text-gray-500">No templates found matching your criteria.</p>
             </div>
