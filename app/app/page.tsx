@@ -124,7 +124,7 @@ export default function IndexPage() {
   const [selectedFrameworks, setSelectedFrameworks] = useState<string[]>([])
   const [selectedBlockchains, setSelectedBlockchains] = useState<string[]>([])
   const [selectedContracts, setSelectedContracts] = useState<string[]>([])
-  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest")
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "mostStars" | "leastStars" | "mostForks" | "leastForks">("newest")
   const [showSoonOnly, setShowSoonOnly] = useState(false)
   const [repoStats, setRepoStats] = useState<{ [key: string]: { stars: number, forks: number, contributors: number } }>({})
 
@@ -166,11 +166,11 @@ export default function IndexPage() {
                           template.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           template.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesFrameworks = selectedFrameworks.length === 0 || 
-                              selectedFrameworks.some(f => template.frameworks.includes(f))
+                              selectedFrameworks.every(f => template.frameworks.includes(f))
     const matchesBlockchains = selectedBlockchains.length === 0 || 
-                               selectedBlockchains.some(b => template.blockchain.includes(b))
+                               selectedBlockchains.every(b => template.blockchain.includes(b))
     const matchesContracts = selectedContracts.length === 0 ||
-                             selectedContracts.some(c => template.contracts.includes(c))
+                             selectedContracts.every(c => template.contracts.includes(c))
     const matchesSoonStatus = !showSoonOnly || template.soon === true
 
     return matchesSearch && matchesFrameworks && matchesBlockchains && matchesContracts && matchesSoonStatus
@@ -189,10 +189,23 @@ export default function IndexPage() {
   }
 
   const sortedTemplates = [...filteredTemplates].sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime()
-    const dateB = new Date(b.createdAt).getTime()
-    return sortOrder === "newest" ? dateB - dateA : dateA - dateB
-  })
+    switch (sortOrder) {
+      case "newest":
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      case "oldest":
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      case "mostStars":
+        return (repoStats[b.id]?.stars || 0) - (repoStats[a.id]?.stars || 0);
+      case "leastStars":
+        return (repoStats[a.id]?.stars || 0) - (repoStats[b.id]?.stars || 0);
+      case "mostForks":
+        return (repoStats[b.id]?.forks || 0) - (repoStats[a.id]?.forks || 0);
+      case "leastForks":
+        return (repoStats[a.id]?.forks || 0) - (repoStats[b.id]?.forks || 0);
+      default:
+        return 0;
+    }
+  });
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -232,6 +245,18 @@ export default function IndexPage() {
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setSortOrder("oldest")}>
                     Oldest First {sortOrder === "oldest" && <Check className="ml-2 h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortOrder("mostStars")}>
+                    Most Stars {sortOrder === "mostStars" && <Check className="ml-2 h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortOrder("leastStars")}>
+                    Least Stars {sortOrder === "leastStars" && <Check className="ml-2 h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortOrder("mostForks")}>
+                    Most Forks {sortOrder === "mostForks" && <Check className="ml-2 h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortOrder("leastForks")}>
+                    Least Forks {sortOrder === "leastForks" && <Check className="ml-2 h-4 w-4" />}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
