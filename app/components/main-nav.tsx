@@ -27,9 +27,12 @@ export function MainNav({ items }: MainNavProps) {
       <Link href="/" className="flex items-center space-x-2">
         <span className="inline-block font-bold">🫕 {siteConfig.name}</span>
       </Link>
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <Sheet onOpenChange={(open) => setIsOpen(open)}>
         <SheetTrigger asChild>
-          <Button variant="ghost" className="px-0 text-base hover:bg-transparent focus:ring-0 md:hidden">
+          <Button 
+            variant="ghost" 
+            className="px-0 text-base hover:bg-transparent focus:ring-0 md:hidden"
+          >
             <Menu className="h-6 w-6" />
             <span className="sr-only">Toggle Menu</span>
           </Button>
