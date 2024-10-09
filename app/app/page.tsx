@@ -2,8 +2,8 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, Search, ChevronDown, X, Check } from "lucide-react"
-import { useState } from "react"
+import { ArrowRight, Search, ChevronDown, X, Check, Star, GitFork } from "lucide-react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -125,11 +125,38 @@ export default function IndexPage() {
   const [selectedBlockchains, setSelectedBlockchains] = useState<string[]>([])
   const [selectedContracts, setSelectedContracts] = useState<string[]>([])
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest")
-  const [showLiveOnly, setShowLiveOnly] = useState(false)
+  const [showSoonOnly, setShowSoonOnly] = useState(false)
+  const [repoStats, setRepoStats] = useState<{ [key: string]: { stars: number, forks: number } }>({})
 
   const allFrameworks = Array.from(new Set(featuredTemplates.flatMap(t => t.frameworks)))
   const allBlockchains = Array.from(new Set(featuredTemplates.flatMap(t => t.blockchain)))
   const allContracts = Array.from(new Set(featuredTemplates.flatMap(t => t.contracts)))
+
+  useEffect(() => {
+    fetchRepoStats()
+  }, [])
+
+  const fetchRepoStats = async () => {
+    const stats: { [key: string]: { stars: number, forks: number } } = {}
+    for (const template of featuredTemplates) {
+      if (template.githubUrl) {
+        try {
+          const repoPath = new URL(template.githubUrl).pathname.slice(1)
+          const response = await fetch(`https://api.github.com/repos/${repoPath}`)
+          if (response.ok) {
+            const data = await response.json()
+            stats[template.id] = {
+              stars: data.stargazers_count,
+              forks: data.forks_count
+            }
+          }
+        } catch (error) {
+          console.error(`Error fetching repo stats for ${template.title}:`, error)
+        }
+      }
+    }
+    setRepoStats(stats)
+  }
 
   const filteredTemplates = featuredTemplates.filter(template => {
     const matchesSearch = searchTerm === "" || 
@@ -141,9 +168,9 @@ export default function IndexPage() {
                                selectedBlockchains.some(b => template.blockchain.includes(b))
     const matchesContracts = selectedContracts.length === 0 ||
                              selectedContracts.some(c => template.contracts.includes(c))
-    const matchesLive = !showLiveOnly || template.soon === false
+    const matchesSoonStatus = !showSoonOnly || template.soon === true
 
-    return matchesSearch && matchesFrameworks && matchesBlockchains && matchesContracts && matchesLive
+    return matchesSearch && matchesFrameworks && matchesBlockchains && matchesContracts && matchesSoonStatus
   })
 
   const availableFrameworks = Array.from(new Set(filteredTemplates.flatMap(t => t.frameworks)))
@@ -155,7 +182,7 @@ export default function IndexPage() {
     setSelectedFrameworks([])
     setSelectedBlockchains([])
     setSelectedContracts([])
-    setShowLiveOnly(false)
+    setShowSoonOnly(false)
   }
 
   const sortedTemplates = [...filteredTemplates].sort((a, b) => {
@@ -205,6 +232,7 @@ export default function IndexPage() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -303,26 +331,20 @@ export default function IndexPage() {
                     ))}
                   </AccordionContent>
                 </AccordionItem>
-                <AccordionItem value="live">
-                  <AccordionTrigger>Live Status</AccordionTrigger>
-                  <AccordionContent>
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Checkbox
-                        id="live-only"
-                        checked={showLiveOnly}
-                        onCheckedChange={(checked) => setShowLiveOnly(checked as boolean)}
-                        className="h-5 w-5"
-                      />
-                      <label
-                        htmlFor="live-only"
-                        className="text-sm font-medium leading-none hover:text-blue-600 cursor-pointer"
-                      >
-                        Show Live Only
-                      </label>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
               </Accordion>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="soon-toggle"
+                  checked={showSoonOnly}
+                  onCheckedChange={(checked) => setShowSoonOnly(checked as boolean)}
+                />
+                <label
+                  htmlFor="soon-toggle"
+                  className="text-sm font-medium leading-none cursor-pointer"
+                >
+                  Show Soon Only
+                </label>
+              </div>
             </div>
             <div className="w-3/4 grid justify-center gap-6 sm:grid-cols-2 md:grid-cols-3">
               {sortedTemplates.map((template) => (
@@ -366,6 +388,18 @@ export default function IndexPage() {
                           </span>
                         ))}
                       </div>
+                      {template.githubUrl && repoStats[template.id] && (
+                        <div className="flex items-center mt-2 space-x-4">
+                          <div className="flex items-center">
+                            <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                            <span className="text-sm font-medium">{repoStats[template.id].stars}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <GitFork className="h-4 w-4 text-gray-400 mr-1" />
+                            <span className="text-sm font-medium">{repoStats[template.id].forks}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="p-4 border-t">
