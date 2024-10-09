@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, Search, ChevronDown, X, Check, Star, GitFork } from "lucide-react"
+import { ArrowRight, Search, ChevronDown, X, Check, Star, GitFork, Users } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -126,7 +126,7 @@ export default function IndexPage() {
   const [selectedContracts, setSelectedContracts] = useState<string[]>([])
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest")
   const [showSoonOnly, setShowSoonOnly] = useState(false)
-  const [repoStats, setRepoStats] = useState<{ [key: string]: { stars: number, forks: number } }>({})
+  const [repoStats, setRepoStats] = useState<{ [key: string]: { stars: number, forks: number, contributors: number } }>({})
 
   const allFrameworks = Array.from(new Set(featuredTemplates.flatMap(t => t.frameworks)))
   const allBlockchains = Array.from(new Set(featuredTemplates.flatMap(t => t.blockchain)))
@@ -137,17 +137,20 @@ export default function IndexPage() {
   }, [])
 
   const fetchRepoStats = async () => {
-    const stats: { [key: string]: { stars: number, forks: number } } = {}
+    const stats: { [key: string]: { stars: number, forks: number, contributors: number } } = {}
     for (const template of featuredTemplates) {
       if (template.githubUrl) {
         try {
           const repoPath = new URL(template.githubUrl).pathname.slice(1)
           const response = await fetch(`https://api.github.com/repos/${repoPath}`)
-          if (response.ok) {
+          const contributorsResponse = await fetch(`https://api.github.com/repos/${repoPath}/contributors?per_page=1`)
+          if (response.ok && contributorsResponse.ok) {
             const data = await response.json()
+            const contributorsCount = parseInt(contributorsResponse.headers.get('Link')?.match(/page=(\d+)>; rel="last"/)?.[1] || '1')
             stats[template.id] = {
               stars: data.stargazers_count,
-              forks: data.forks_count
+              forks: data.forks_count,
+              contributors: contributorsCount
             }
           }
         } catch (error) {
@@ -397,6 +400,10 @@ export default function IndexPage() {
                           <div className="flex items-center">
                             <GitFork className="h-4 w-4 text-gray-400 mr-1" />
                             <span className="text-sm font-medium">{repoStats[template.id].forks}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Users className="h-4 w-4 text-gray-400 mr-1" />
+                            <span className="text-sm font-medium">{repoStats[template.id].contributors}</span>
                           </div>
                         </div>
                       )}

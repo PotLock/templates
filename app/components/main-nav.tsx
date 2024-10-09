@@ -26,7 +26,8 @@ export function MainNav({ items }: MainNavProps) {
   return (
     <div className="flex items-center justify-between w-full">
       <Link href="/" className="flex items-center space-x-2">
-        <span className="inline-block font-bold">🫕 {siteConfig.name}</span>
+        <img src="/logo.png" alt="Potlock" className="h-auto w-8 object-contain" /> 
+        {/* <span className="inline-block font-bold">🫕 {siteConfig.name}</span> */}
       </Link>
       <SheetRoot onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
