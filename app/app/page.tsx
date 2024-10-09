@@ -47,7 +47,7 @@ const featuredTemplates = [
     frameworks: ["Next.js", "Tailwind CSS", "Shadcn/UI"],
     createdAt: "2024-03-14",
     blockchain: ["NEAR"],
-    soon: true,
+    soon: false,
     display: false,
     githubUrl: "https://github.com/PotLock/potlock-nextjs-app",
   },
@@ -125,21 +125,25 @@ export default function IndexPage() {
   const [selectedBlockchains, setSelectedBlockchains] = useState<string[]>([])
   const [selectedContracts, setSelectedContracts] = useState<string[]>([])
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest")
+  const [showLiveOnly, setShowLiveOnly] = useState(false)
 
   const allFrameworks = Array.from(new Set(featuredTemplates.flatMap(t => t.frameworks)))
   const allBlockchains = Array.from(new Set(featuredTemplates.flatMap(t => t.blockchain)))
   const allContracts = Array.from(new Set(featuredTemplates.flatMap(t => t.contracts)))
 
   const filteredTemplates = featuredTemplates.filter(template => {
-    const matchesSearch = template.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = searchTerm === "" || 
+                          template.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           template.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesFrameworks = selectedFrameworks.length === 0 || 
-                              selectedFrameworks.every(f => template.frameworks.includes(f))
+                              selectedFrameworks.some(f => template.frameworks.includes(f))
     const matchesBlockchains = selectedBlockchains.length === 0 || 
-                               selectedBlockchains.every(b => template.blockchain.includes(b))
+                               selectedBlockchains.some(b => template.blockchain.includes(b))
     const matchesContracts = selectedContracts.length === 0 ||
-                             selectedContracts.every(c => template.contracts.includes(c))
-    return matchesSearch && matchesFrameworks && matchesBlockchains && matchesContracts
+                             selectedContracts.some(c => template.contracts.includes(c))
+    const matchesLive = !showLiveOnly || template.soon === false
+
+    return matchesSearch && matchesFrameworks && matchesBlockchains && matchesContracts && matchesLive
   })
 
   const availableFrameworks = Array.from(new Set(filteredTemplates.flatMap(t => t.frameworks)))
@@ -151,6 +155,7 @@ export default function IndexPage() {
     setSelectedFrameworks([])
     setSelectedBlockchains([])
     setSelectedContracts([])
+    setShowLiveOnly(false)
   }
 
   const sortedTemplates = [...filteredTemplates].sort((a, b) => {
@@ -298,12 +303,31 @@ export default function IndexPage() {
                     ))}
                   </AccordionContent>
                 </AccordionItem>
+                <AccordionItem value="live">
+                  <AccordionTrigger>Live Status</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Checkbox
+                        id="live-only"
+                        checked={showLiveOnly}
+                        onCheckedChange={(checked) => setShowLiveOnly(checked as boolean)}
+                        className="h-5 w-5"
+                      />
+                      <label
+                        htmlFor="live-only"
+                        className="text-sm font-medium leading-none hover:text-blue-600 cursor-pointer"
+                      >
+                        Show Live Only
+                      </label>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
               </Accordion>
             </div>
             <div className="w-3/4 grid justify-center gap-6 sm:grid-cols-2 md:grid-cols-3">
               {sortedTemplates.map((template) => (
                 <div key={template.id} className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
-                  <div className="p-4">
+                  <div className="p-4 relative">
                     <Image
                       src={template.image}
                       alt={template.title}
@@ -311,6 +335,11 @@ export default function IndexPage() {
                       height={400}
                       className="object-cover w-full h-48 rounded"
                     />
+                    {template.soon && (
+                      <div className="absolute top-6 right-6 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-semibold">
+                        Soon
+                      </div>
+                    )}
                   </div>
                   <div className="p-4">
                     <h3 className="text-lg font-semibold mb-2">{template.title}</h3>
@@ -340,8 +369,9 @@ export default function IndexPage() {
                     </div>
                   </div>
                   <div className="p-4 border-t">
-                    <Link 
-                      href={`/templates/${template.id}`} 
+                  <Link 
+                      href={template.githubUrl} 
+                      target="_blank"
                       className={buttonVariants({ 
                         variant: "outline",
                         className: "w-full justify-center hover:bg-blue-50 hover:text-blue-600 transition-colors duration-300"
@@ -349,6 +379,15 @@ export default function IndexPage() {
                     >
                       View Template <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
+                    {/* <Link 
+                      href={`/templates/${template.id}`} 
+                      className={buttonVariants({ 
+                        variant: "outline",
+                        className: "w-full justify-center hover:bg-blue-50 hover:text-blue-600 transition-colors duration-300"
+                      })}
+                    >
+                      View Template <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link> */}
                   </div>
                 </div>
               ))}

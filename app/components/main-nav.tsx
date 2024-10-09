@@ -1,32 +1,62 @@
+"use client"
 import * as React from "react"
 import Link from "next/link"
+import { Menu } from "lucide-react"
+// Change this import
+import { MobileLink } from "./mobile-link"
 
 import { NavItem } from "@/types/nav"
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
-import { Icons } from "@/components/icons"
+import { Button } from "@/components/ui/button"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "./ui/sheet"
 
 interface MainNavProps {
   items?: NavItem[]
 }
 
 export function MainNav({ items }: MainNavProps) {
+  const [isOpen, setIsOpen] = React.useState(false)
+
   return (
-    <div className="flex items-center justify-center gap-6 md:gap-10">
+    <div className="flex items-center justify-between w-full">
       <Link href="/" className="flex items-center space-x-2">
-        {/* <Icons.logo className="h-6 w-6" /> */}
         <span className="inline-block font-bold">🫕 {siteConfig.name}</span>
       </Link>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetTrigger asChild>
+          <Button variant="ghost" className="px-0 text-base hover:bg-transparent focus:ring-0 md:hidden">
+            <Menu className="h-6 w-6" />
+            <span className="sr-only">Toggle Menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent className="w-[300px] sm:w-[400px]">
+          <nav className="flex flex-col gap-4">
+            {items?.map((item, index) => (
+              <MobileLink
+                key={index}
+                href={item.href ?? '#'}
+                onOpenChange={setIsOpen}
+                className="text-muted-foreground"
+              >
+                {item.title}
+              </MobileLink>
+            ))}
+          </nav>
+        </SheetContent>
+      </Sheet>
       {items?.length ? (
-        <nav className="flex justify-center align-center items-center gap-6">
+        <nav className="hidden md:flex gap-6">
           {items?.map(
             (item, index) =>
               item.href && (
                 <Link
                   key={index}
                   href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className={cn(
                     "flex items-center text-sm font-medium text-muted-foreground",
                     item.disabled && "cursor-not-allowed opacity-80"
