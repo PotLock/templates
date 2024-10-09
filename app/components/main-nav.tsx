@@ -13,6 +13,7 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetRoot,
 } from "./ui/sheet"
 
 interface MainNavProps {
@@ -27,7 +28,7 @@ export function MainNav({ items }: MainNavProps) {
       <Link href="/" className="flex items-center space-x-2">
         <span className="inline-block font-bold">🫕 {siteConfig.name}</span>
       </Link>
-      <Sheet onOpenChange={(open) => setIsOpen(open)}>
+      <SheetRoot onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <Button 
             variant="ghost" 
@@ -51,7 +52,7 @@ export function MainNav({ items }: MainNavProps) {
             ))}
           </nav>
         </SheetContent>
-      </Sheet>
+      </SheetRoot>
       {items?.length ? (
         <nav className="hidden md:flex gap-6">
           {items?.map(

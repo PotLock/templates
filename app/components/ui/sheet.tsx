@@ -1,17 +1,9 @@
-import * as React from "react"
+import * as SheetPrimitive from "@radix-ui/react-dialog"
 
-export interface SheetProps {
-  // Add your props here
-}
+export const Sheet = SheetPrimitive.Root
+export const SheetTrigger = SheetPrimitive.Trigger
+export const SheetContent = SheetPrimitive.Content
+// ... export other necessary parts
 
-export function Sheet(props: SheetProps) {
-  // Implement your Sheet component
-}
-
-export function SheetContent(props: any) {
-  // Implement SheetContent
-}
-
-export function SheetTrigger(props: any) {
-  // Implement SheetTrigger
-}
+// Add this line:
+export const SheetRoot = Sheet
