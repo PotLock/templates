@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, Search, ChevronDown, X, Check, Star, GitFork, Users } from "lucide-react"
+import { ArrowRight, Search, ChevronDown, X, Check, Star, GitFork, Users, Menu } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -44,7 +44,7 @@ const featuredTemplates = [
     description: "Barebones decentralized social apps with tip powered by NEAR Social & Potlock",
     image: "/decentralizedsocial.png",
     contracts: ["Social.near", "Donate"],
-    frameworks: ["Next.js", "Tailwind CSS", "Shadcn/UI"],
+    frameworks: ["Vite", "Tailwind CSS", "Typescript"],
     createdAt: "2024-10-20",
     blockchain: ["NEAR"],
     soon: false,
@@ -60,7 +60,7 @@ const featuredTemplates = [
     frameworks: ["Next.js", "Tailwind CSS", "ReactJs"],
     createdAt: "2024-03-14",
     blockchain: ["NEAR"],
-    soon: false,
+    soon: true,
     display: false,
     githubUrl: "https://github.com/PotLock/potlock-nextjs-app",
   },
@@ -111,7 +111,7 @@ const featuredTemplates = [
     contracts: ["Donate"],
     createdAt: "2024-10-07",
     blockchain: ["NEAR"],
-    soon: true,
+    soon: false,
     display: true,
     githubUrl: "https://github.com/PotLock/potlock-agent-mintbase",
   },
@@ -137,7 +137,6 @@ export default function IndexPage() {
   const [selectedBlockchains, setSelectedBlockchains] = useState<string[]>([])
   const [selectedContracts, setSelectedContracts] = useState<string[]>([])
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "mostStars" | "leastStars" | "mostForks" | "leastForks">("newest")
-  const [showSoonOnly, setShowSoonOnly] = useState(false)
   const [repoStats, setRepoStats] = useState<{ [key: string]: { stars: number, forks: number, contributors: number } }>({})
 
   const allFrameworks = Array.from(new Set(featuredTemplates.flatMap(t => t.frameworks)))
@@ -183,9 +182,9 @@ export default function IndexPage() {
                                selectedBlockchains.every(b => template.blockchain.includes(b))
     const matchesContracts = selectedContracts.length === 0 ||
                              selectedContracts.every(c => template.contracts.includes(c))
-    const matchesSoonStatus = !showSoonOnly || template.soon === true
+    const isNotSoon = !template.soon
 
-    return matchesSearch && matchesFrameworks && matchesBlockchains && matchesContracts && matchesSoonStatus
+    return matchesSearch && matchesFrameworks && matchesBlockchains && matchesContracts && isNotSoon
   })
 
   const availableFrameworks = Array.from(new Set(filteredTemplates.flatMap(t => t.frameworks)))
@@ -197,7 +196,6 @@ export default function IndexPage() {
     setSelectedFrameworks([])
     setSelectedBlockchains([])
     setSelectedContracts([])
-    setShowSoonOnly(false)
   }
 
   const sortedTemplates = [...filteredTemplates].sort((a, b) => {
@@ -232,60 +230,164 @@ export default function IndexPage() {
             </p>
           </div>
         </section>
-        <section className="container space-y-6 bg-slate-50 py-8 dark:bg-transparent md:py-12 lg:py-24">
-          <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
-            <div className="w-full flex items-center space-x-2">
-              <div className="relative flex-grow">
+        <section className="container space-y-6 bg-slate-50 py-8 dark:bg-transparent md:py-12 lg:py-16">
+          <div className="mx-auto flex max-w-[64rem] flex-col items-center gap-4 text-center">
+            <div id="search-container" className="w-full flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2 sm:items-center">
+              <div className="relative w-full sm:flex-grow mb-2 sm:mb-0">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <Input
                   type="text"
                   placeholder="Search templates..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full rounded-full border-gray-300 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="pl-10 pr-4 py-2 w-full rounded-md border-gray-300 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 />
               </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="flex items-center">
-                    Sort by <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => setSortOrder("newest")}>
-                    Newest First {sortOrder === "newest" && <Check className="ml-2 h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortOrder("oldest")}>
-                    Oldest First {sortOrder === "oldest" && <Check className="ml-2 h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortOrder("mostStars")}>
-                    Most Stars {sortOrder === "mostStars" && <Check className="ml-2 h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortOrder("leastStars")}>
-                    Least Stars {sortOrder === "leastStars" && <Check className="ml-2 h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortOrder("mostForks")}>
-                    Most Forks {sortOrder === "mostForks" && <Check className="ml-2 h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortOrder("leastForks")}>
-                    Least Forks {sortOrder === "leastForks" && <Check className="ml-2 h-4 w-4" />}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex justify-between sm:justify-end sm:flex-shrink-0 space-x-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="flex-grow sm:flex-grow-0 items-center justify-center">
+                      Sort by <ChevronDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => setSortOrder("newest")}>
+                      Newest First {sortOrder === "newest" && <Check className="ml-2 h-4 w-4" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortOrder("oldest")}>
+                      Oldest First {sortOrder === "oldest" && <Check className="ml-2 h-4 w-4" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortOrder("mostStars")}>
+                      Most Stars {sortOrder === "mostStars" && <Check className="ml-2 h-4 w-4" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortOrder("leastStars")}>
+                      Least Stars {sortOrder === "leastStars" && <Check className="ml-2 h-4 w-4" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortOrder("mostForks")}>
+                      Most Forks {sortOrder === "mostForks" && <Check className="ml-2 h-4 w-4" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortOrder("leastForks")}>
+                      Least Forks {sortOrder === "leastForks" && <Check className="ml-2 h-4 w-4" />}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={clearAllFilters}
-                className="flex items-center"
-              >
-                <X className="mr-2 h-4 w-4" />
-                Clear Filters
-              </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearAllFilters}
+                  className="flex-grow sm:flex-grow-0 items-center justify-center"
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  Clear Filters
+                </Button>
+              </div>
             </div>
           </div>
-          <div className="flex gap-8">
-            <div className="w-1/4">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Mobile filters */}
+            <div className="lg:hidden w-full mb-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-full">
+                    <Menu className="mr-2 h-4 w-4" /> Filters
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-screen max-w-sm">
+                  <div className="p-4">
+                    <Accordion type="multiple" className="w-full">
+                      <AccordionItem value="frameworks">
+                        <AccordionTrigger>Frameworks</AccordionTrigger>
+                        <AccordionContent>
+                          {allFrameworks.map((framework) => (
+                            <div key={framework} className="flex items-center space-x-2 mb-2">
+                              <Checkbox
+                                id={`framework-${framework.replace(/\s+/g, '-').toLowerCase()}`}
+                                checked={selectedFrameworks.includes(framework)}
+                                onCheckedChange={(checked) => {
+                                  setSelectedFrameworks(
+                                    checked
+                                      ? [...selectedFrameworks, framework]
+                                      : selectedFrameworks.filter((f) => f !== framework)
+                                  )
+                                }}
+                                disabled={!availableFrameworks.includes(framework)}
+                                className="h-5 w-5"
+                              />
+                              <label
+                                htmlFor={`framework-${framework.replace(/\s+/g, '-').toLowerCase()}`}
+                                className={`text-sm font-medium leading-none ${!availableFrameworks.includes(framework) ? 'text-gray-400' : 'hover:text-blue-600 cursor-pointer'}`}
+                              >
+                                {framework}
+                              </label>
+                            </div>
+                          ))}
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="blockchains">
+                        <AccordionTrigger>Blockchains</AccordionTrigger>
+                        <AccordionContent>
+                          {allBlockchains.map((blockchain) => (
+                            <div key={blockchain} className="flex items-center space-x-2 mb-2">
+                              <Checkbox
+                                id={`blockchain-${blockchain.replace(/\s+/g, '-').toLowerCase()}`}
+                                checked={selectedBlockchains.includes(blockchain)}
+                                onCheckedChange={(checked) => {
+                                  setSelectedBlockchains(
+                                    checked
+                                      ? [...selectedBlockchains, blockchain]
+                                      : selectedBlockchains.filter((b) => b !== blockchain)
+                                  )
+                                }}
+                                disabled={!availableBlockchains.includes(blockchain)}
+                                className="h-5 w-5"
+                              />
+                              <label
+                                htmlFor={`blockchain-${blockchain.replace(/\s+/g, '-').toLowerCase()}`}
+                                className={`text-sm font-medium leading-none ${!availableBlockchains.includes(blockchain) ? 'text-gray-400' : 'hover:text-purple-600 cursor-pointer'}`}
+                              >
+                                {blockchain}
+                              </label>
+                            </div>
+                          ))}
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="contracts">
+                        <AccordionTrigger>Contracts</AccordionTrigger>
+                        <AccordionContent>
+                          {allContracts.map((contract) => (
+                            <div key={contract} className="flex items-center space-x-2 mb-2">
+                              <Checkbox
+                                id={`contract-${contract.replace(/\s+/g, '-').toLowerCase()}`}
+                                checked={selectedContracts.includes(contract)}
+                                onCheckedChange={(checked) => {
+                                  setSelectedContracts(
+                                    checked
+                                      ? [...selectedContracts, contract]
+                                      : selectedContracts.filter((c) => c !== contract)
+                                  )
+                                }}
+                                disabled={!availableContracts.includes(contract)}
+                                className="h-5 w-5"
+                              />
+                              <label
+                                htmlFor={`contract-${contract.replace(/\s+/g, '-').toLowerCase()}`}
+                                className={`text-sm font-medium leading-none ${!availableContracts.includes(contract) ? 'text-gray-400' : 'hover:text-green-600 cursor-pointer'}`}
+                              >
+                                {contract}
+                              </label>
+                            </div>
+                          ))}
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Desktop filters */}
+            <div className="hidden lg:block w-1/4">
               <Accordion type="multiple" className="w-full">
                 <AccordionItem value="frameworks">
                   <AccordionTrigger>Frameworks</AccordionTrigger>
@@ -372,21 +474,10 @@ export default function IndexPage() {
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="soon-toggle"
-                  checked={showSoonOnly}
-                  onCheckedChange={(checked) => setShowSoonOnly(checked as boolean)}
-                />
-                <label
-                  htmlFor="soon-toggle"
-                  className="text-sm font-medium leading-none cursor-pointer"
-                >
-                  Show Soon Only
-                </label>
-              </div>
             </div>
-            <div className="w-3/4 grid justify-center gap-6 sm:grid-cols-2 md:grid-cols-3">
+
+            {/* Template cards */}
+            <div className="w-full lg:w-3/4 grid justify-center gap-6 sm:grid-cols-2 md:grid-cols-3">
               {sortedTemplates.map((template) => (
                 <div key={template.id} className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
                   <div className="p-4 relative">

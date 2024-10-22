@@ -5,3 +5,5 @@
 app/yarn.lock
 .env
 app/.env
+/node_modules
+*.lock

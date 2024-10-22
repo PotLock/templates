@@ -1,7 +1,9 @@
 # POTLOCK Templates
 ![PotlockTemplates](https://github.com/user-attachments/assets/c9b989db-e7fa-471f-9dca-fe115a05ff17)
 
-Templates mono repo. Discover Potlock tempaltes to easily deploy the open funding stack. 
+[Templates](https://templates.potlock.org) mono [repo](https://github.com/PotLock/templates). 
+
+Discover Potlock templates to quickly deploy your own open funding stack. 
 
 A directory of boilerplate templates to deploy pieces of the Potlock funding of stack to be hosted on templates.potlock.org 
 
