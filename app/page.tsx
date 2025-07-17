@@ -47,6 +47,20 @@ const featuredTemplates = [
     githubUrl: "https://github.com/PotLock/donate-script",
   },
   {
+    id: 1,
+    title: "Deploy Vite to Walrus",
+    description:
+      "Minimal Vite app with github workflow for deploy to Walrus Protocol",
+    image: "/potlock-walrus.png",
+    contracts: [],
+    frameworks: ["Vite", "Tailwind CSS", "Typescript"],
+    createdAt: "2025-07-17",
+    blockchain: ["NEAR", "SUI"],
+    soon: false,
+    display: true,
+    githubUrl: "https://github.com/PotLock/walrus-template",
+  },
+  {
     id: 2,
     title: "Vite Social App with Tips",
     description:
