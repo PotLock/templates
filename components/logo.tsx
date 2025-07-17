@@ -15,7 +15,7 @@ export function Logo({ className }: { className?: string }) {
     return null
   }
 
-  const logoSrc = theme === "dark" ? "/logowhite.png" : "/logo.png"
+  const logoSrc = theme === "light" ? "/logo.png" : "/logowhite.png"
 
   return (
     <img
