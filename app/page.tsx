@@ -23,7 +23,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 
-// Sample data for featured templates
 const featuredTemplates = [
   {
     id: 1,

@@ -7,3 +7,4 @@ app/yarn.lock
 app/.env
 /node_modules
 *.lock
+.next
