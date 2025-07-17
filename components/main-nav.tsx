@@ -15,7 +15,7 @@ import {
   SheetTrigger,
   SheetRoot,
 } from "./ui/sheet"
-import { useTheme } from "next-themes"
+import { Logo } from "./logo"
 
 interface MainNavProps {
   items?: NavItem[]
@@ -23,16 +23,10 @@ interface MainNavProps {
 
 export function MainNav({ items }: MainNavProps) {
   const [isOpen, setIsOpen] = React.useState(false)
-  const { theme } = useTheme()
-
   return (
     <div className="flex items-center justify-between w-full">
       <Link href="/" className="flex items-center">
-        <img 
-          src={theme === "dark" ? "/logowhite.png" : "/logo.png"} 
-          alt="Potlock" 
-          className="h-full w-auto max-h-12" 
-        /> 
+        <Logo className="h-full w-auto max-h-12" />
         {/* <span className="inline-block font-bold">🫕 {siteConfig.name}</span> */}
       </Link>
       <SheetRoot onOpenChange={setIsOpen}>
