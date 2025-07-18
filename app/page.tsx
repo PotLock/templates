@@ -154,6 +154,20 @@ const featuredTemplates = [
     display: false,
     githubUrl: "https://github.com/PotLock/bos-app",
   },
+
+  {
+    id: 7,
+    title: "Cross Chain Widget",
+    description: "Enable seamless token transfers across chains with an embeddable widget.",
+    image: "/Widget.png",
+    frameworks: ["vite"],
+    contracts: [],
+    createdAt: "2025-07-01",
+    blockchain: ["NEAR","Typescript"],
+    soon: false,
+    display: true,
+    githubUrl: "https://github.com/PotLock/cross-chain-widget",
+  },
 ]
 
 export default function IndexPage() {
